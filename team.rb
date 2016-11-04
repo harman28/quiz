@@ -3,12 +3,15 @@ require_relative 'question'
 class Team
 
   attr_reader :strength
+  attr_reader :id
 
   @@upper_strength = 100
   @@lower_strength = 0
 
-  def initialize lower_strength = 0, upper_strength = 100
+  def initialize id = nil, lower_strength = 0, upper_strength = 100
     @strength = random_strength(lower_strength, upper_strength)
+
+    @id = id
 
     @@lower_strength = lower_strength
     @@upper_strength = upper_strength
@@ -19,7 +22,14 @@ class Team
   # 1) You know the answer
   # 2) It's a pounce round, you pounce, and you guess right
   def gets? question, pounce = false
-  	knows? question or (pounce and pounces? question and guesses?)
+  	knows? question or (pounce and pounces? question, pounce and guesses?)
+  end
+
+  ##
+  # You pounce if question is within your guessing range,
+  # which is set to within 10% of the difficulty of the question
+  def pounces? question, pounce = false
+    pounce and @strength >= (question.difficulty - guess_range)
   end
 
   private
@@ -28,13 +38,6 @@ class Team
   # You know the answer if your strength is higher than the question difficulty
   def knows? question
   	@strength >= question.difficulty
-  end
-
-  ##
-  # You pounce if question is within your guessing range,
-  # which is set to within 10% of the difficulty of the question
-  def pounces? question
-  	@strength >= (question.difficulty - guess_range)
   end
 
   ##

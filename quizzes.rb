@@ -7,6 +7,10 @@ class InfiniteBounce < Quiz
   def initialize number_of_teams = 6
     super number_of_teams, false
   end
+
+  def scheme
+    @@scheme
+  end
 end
 
 class InfinitePounce < Quiz
@@ -15,6 +19,10 @@ class InfinitePounce < Quiz
 
   def initialize number_of_teams = 6
     super number_of_teams, true
+  end
+
+  def scheme
+    @@scheme
   end
 end
 
@@ -25,6 +33,10 @@ class RollingBounce < Quiz
   def initialize number_of_teams = 6
     super number_of_teams, false
   end
+
+  def scheme
+    @@scheme
+  end
 end
 
 class RollingPounce < Quiz
@@ -33,6 +45,10 @@ class RollingPounce < Quiz
 
   def initialize number_of_teams = 6
     super number_of_teams, true
+  end
+
+  def scheme
+    @@scheme
   end
 end
 

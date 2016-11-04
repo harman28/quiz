@@ -30,7 +30,7 @@ class Quiz
     number_of_rounds.times do |round|
       flip = flip? round
 
-      anchors = Anchors.new @teams.size, flip
+      anchors = Anchors.new @teams.size, flip, scheme
 
       run_round questions_per_round, anchors
     end
@@ -48,6 +48,12 @@ class Quiz
     scores = @scores.values
 
     FairnessCheck.pearson_product_moment_correlation_coefficient strengths, scores
+  end
+
+  protected
+
+  def scheme
+    Scheme::INFINITE_BOUNCE
   end
 
   private

@@ -1,4 +1,4 @@
-require_relative 'quiz'
+require_relative 'app/quiz'
 
 class InfiniteBounce < Quiz
 

@@ -15,6 +15,6 @@ class Question
   private
 
   def random_difficulty lower_difficulty, upper_difficulty
-    lower_difficulty + rand(upper_difficulty + 1 - lower_difficulty)
+    lower_difficulty + rand*(upper_difficulty - lower_difficulty)
   end
 end

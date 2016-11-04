@@ -45,7 +45,7 @@ class Team
   end
 
   def random_strength lower_strength, upper_strength
-    lower_strength + rand((upper_strength + 1) - lower_strength)
+    lower_strength + rand*(upper_strength - lower_strength)
   end
 
   def guess_range

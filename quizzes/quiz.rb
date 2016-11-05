@@ -1,19 +1,26 @@
-require_relative 'team'
-require_relative 'question'
-require_relative 'points'
-require_relative 'scheme'
-require_relative 'anchors'
-require_relative 'fairness'
+require_relative 'classes/team'
+require_relative 'classes/question'
+require_relative 'classes/points'
+require_relative 'classes/scheme'
+require_relative 'classes/anchors'
+require_relative 'classes/fairness'
 
 class Quiz
 
   attr_reader :teams
   attr_reader :scores
 
-  def initialize number_of_teams, pounce
+  ##
+  # Setting to default, Quiz class is essentially abstract
+  @@scheme = Scheme::INFINITE_BOUNCE
+  @@pounce = false
+  @@config = Hash.new
+
+  def initialize number_of_teams = 6
+    set_class_variables
+
     @teams = []
     @scores = Hash.new
-    @pounce = pounce
     @run = false
 
     number_of_teams.times do |team_number|
@@ -24,13 +31,15 @@ class Quiz
     end
   end
 
-  def run questions_per_round = 12, number_of_rounds = 1
+  def run questions_per_round = 12, number_of_rounds = 1, verbose = false
     return if @run
+
+    @verbose = verbose
 
     number_of_rounds.times do |round|
       flip = flip? round
 
-      anchors = Anchors.new @teams.size, flip, scheme
+      anchors = Anchors.new @teams.size, flip, @@config
 
       run_round questions_per_round, anchors
     end
@@ -52,33 +61,36 @@ class Quiz
 
   protected
 
-  def scheme
-    Scheme::INFINITE_BOUNCE
+  def set_class_variables
+    @@pounce   = Scheme.is_pounce? @@scheme
+
+    @@config[:infinite] = Scheme.is_infinite? @@scheme
+    @@config[:shifting] = Scheme.is_shifting? @@scheme
+    @@config[:written]  = Scheme.is_written? @@scheme
   end
 
   private
 
   def run_round questions_per_round, anchors
     questions_per_round.times do |question_number|
-      question = next_question
+      question = next_question question_number+1
 
-      run_question question, anchors, question_number+1
+      run_question question, anchors
 
       anchors.next_question!
     end
   end
 
-  def run_question question, anchors, question_number
-    puts "Q#{question_number}, difficulty: #{question.difficulty}"
+  def run_question question, anchors
+    puts "Q#{question.to_s @verbose}, direct to team #{anchors.direct.pointer}"
     question_log = {:pounced => [], :scored => [], :passed => []}
 
-    question_log[:pounced] = handle_pounce question, anchors, question_number
+    question_log[:pounced] = handle_pounce question, anchors
 
     max_attempts = @teams.size - question_log[:pounced].size
 
     # Everybody pounced!
     if max_attempts.zero?
-      print_question_status question, question_log
       return
     end
 
@@ -94,12 +106,12 @@ class Quiz
         next
       end
 
-      if team.gets? question, @pounce
+      if team.knows? question
         got = true
         break
       end
       question_log[:passed] << team.id
-      puts "Q#{question_number} passed by T#{team.id}, strength: #{team.strength}"
+      puts "Q#{question.id} passed by T#{team.to_s @verbose}"
       attempts += 1
       break if attempts >= max_attempts
 
@@ -109,31 +121,30 @@ class Quiz
     if got
       plus team
       question_log[:scored] << team.id
-      puts "Q#{question_number} scored by T#{team.id}, strength: #{team.strength}"
+      puts "Q#{question.id} scored by T#{team.to_s @verbose}"
     else
-      puts "Q#{question_number} unanswered"
+      puts "Q#{question.id} unanswered"
     end
 
-    print_question_status question, question_log
   end
 
-  def handle_pounce question, anchors, question_number
+  def handle_pounce question, anchors
     pounced = []
 
-    return pounced if not @pounce
+    return pounced if not @@pounce
 
     @teams.each do |team|
       # Don't pounce on your own question
       next if direct? team, anchors
 
-      if team.pounces? question, @pounce
+      if team.pounces? question, @@config[:written]
         pounced << team.id
-        if team.gets? question, @pounce
+        if team.knows? question or team.guesses?
           plus team
-          puts "Q#{question_number} guessed by T#{team.id}, strength: #{team.strength}"
+          puts "Q#{question.id} guessed by T#{team.to_s @verbose}"
         else
-          minus team
-          puts "Q#{question_number} screwed by T#{team.id}, strength: #{team.strength}"
+          minus team if not @@config[:written]
+          puts "Q#{question.id} screwed by T#{team.to_s @verbose}"
         end
       end
     end
@@ -141,17 +152,12 @@ class Quiz
     pounced
   end
 
-  def print_question_status question, question_log
-    return
-    p question_log
-  end
-
   def flip? round
     round % 2 == 1
   end
 
-  def next_question
-    Question.new
+  def next_question question_number
+    Question.new question_number
   end
 
   def plus team
@@ -164,6 +170,6 @@ class Quiz
   end
 
   def direct? team, anchors
-    @teams[anchors.direct.pointer] == team
+    @teams[anchors.direct.pointer-1] == team and not @@config[:written]
   end
 end

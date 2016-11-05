@@ -4,14 +4,14 @@ class Anchors
   attr_reader :start
   attr_reader :direct
 
-  def initialize number_of_teams = 6, flip = false, scheme = Scheme::INFINITE_BOUNCE
-    @start       = Anchor.new number_of_teams, flip
+  def initialize number_of_teams = 6, flip = false, config
+    @start  = Anchor.new number_of_teams, flip
 
-    @direct      = Anchor.new number_of_teams, flip
+    @direct = Anchor.new number_of_teams, flip
 
-    @is_infinite = Scheme.is_infinite? scheme
+    @config = config
 
-    @teams       = *(1..number_of_teams)
+    @teams  = *(1..number_of_teams)
   end
 
   ##
@@ -23,11 +23,11 @@ class Anchors
   ##
   # Call this when moving to next question
   def next_question!
-    if @is_infinite
+    if @config[:infinite]
       @direct.next!
 
       @start = @direct.clone
-    else
+    elsif @config[:shifting]
       @start.next!
 
       @direct = @start.clone

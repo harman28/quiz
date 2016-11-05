@@ -20,19 +20,19 @@ class Quiz
     set_class_variables
 
     @teams = []
-    @scores = Hash.new
     @run = false
 
     number_of_teams.times do |team_number|
       team =  Team.new team_number+1
 
       @teams << team
-      @scores[team] = 0;
     end
   end
 
   def run questions_per_round = 12, number_of_rounds = 1, verbose = false
-    return if @run
+    return @scores if !@scores.nil?
+
+    init_scores
 
     @verbose = verbose
 
@@ -49,14 +49,8 @@ class Quiz
     @scores
   end
 
-  ##
-  # From the team strengths and their scores, judge fairness
-  # Can't be boolean because fairness threshold could be anything
   def fairness
-    strengths = @teams.map(&:strength)
-    scores = @scores.values
-
-    FairnessCheck.pearson_product_moment_correlation_coefficient strengths, scores
+    @fairness ||= calculate_fairness
   end
 
   protected
@@ -150,6 +144,24 @@ class Quiz
     end
 
     pounced
+  end
+
+  ##
+  # From the team strengths and their scores, judge fairness
+  # Can't be boolean because fairness threshold could be anything
+  def calculate_fairness
+    strengths = @teams.map(&:strength)
+    scores = @scores.values
+
+    FairnessCheck.pearson_product_moment_correlation_coefficient strengths, scores
+  end
+
+  def init_scores
+    @scores = Hash.new
+
+    @teams.each do |team|
+      @scores[team] = 0;
+    end
   end
 
   def flip? round

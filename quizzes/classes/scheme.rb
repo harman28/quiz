@@ -20,7 +20,8 @@ class Scheme
 
   POUNCE = [
     INFINITE_POUNCE,
-    SHIFTING_POUNCE
+    SHIFTING_POUNCE,
+    WRITTEN
   ]
 
   def self.is_infinite? scheme

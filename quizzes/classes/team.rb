@@ -29,6 +29,9 @@ class Team
   # You pounce if question is within your guessing range,
   # which is set to within 10% of the difficulty of the question
   #
+  # Assumption: Whether you pounce is a factor of your knowledge
+  # TODO: Make this a factor of random confidence instead
+  #
   # Force flag is used to simulate written rounds, where everyone pounces
   def pounces? question, force = false
     @strength >= (question.difficulty - guess_range) or force

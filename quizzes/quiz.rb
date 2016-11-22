@@ -76,7 +76,7 @@ class Quiz
   end
 
   def run_question question, anchors
-    puts "Q#{question.to_s @verbose}, direct to team #{anchors.direct.pointer}"
+    # puts "Q#{question.to_s @verbose}, direct to team #{anchors.direct.pointer}"
     question_log = {:pounced => [], :scored => [], :passed => []}
 
     question_log[:pounced] = handle_pounce question, anchors
@@ -105,7 +105,7 @@ class Quiz
         break
       end
       question_log[:passed] << team.id
-      puts "Q#{question.id} passed by T#{team.to_s @verbose}"
+      # puts "Q#{question.id} passed by T#{team.to_s @verbose}"
       attempts += 1
       break if attempts >= max_attempts
 
@@ -115,9 +115,9 @@ class Quiz
     if got
       plus team
       question_log[:scored] << team.id
-      puts "Q#{question.id} scored by T#{team.to_s @verbose}"
+      # puts "Q#{question.id} scored by T#{team.to_s @verbose}"
     else
-      puts "Q#{question.id} unanswered"
+      # puts "Q#{question.id} unanswered"
     end
 
   end
@@ -135,10 +135,10 @@ class Quiz
         pounced << team.id
         if team.knows? question or team.guesses?
           plus team
-          puts "Q#{question.id} guessed by T#{team.to_s @verbose}"
+          # puts "Q#{question.id} guessed by T#{team.to_s @verbose}"
         else
           minus team if not @@config[:written]
-          puts "Q#{question.id} screwed by T#{team.to_s @verbose}"
+          # puts "Q#{question.id} screwed by T#{team.to_s @verbose}"
         end
       end
     end

@@ -9,5 +9,8 @@ This repo will get us nowhere close to that proof, but it will help us understan
 
 There will probably be a ton of assumptions that are implicit in these simulations. I'll list them in a separate file.
 
+# Running the scripts
+`ruby scripts/test_script.rb 500`
+
 ## License
 MIT, I care about attribution.
